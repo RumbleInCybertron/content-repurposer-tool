@@ -6,6 +6,7 @@ export default function HomePage() {
   const [content, setContent] = useState('');
   const [formats, setFormats] = useState<string[]>([]);
   const [response, setResponse] = useState<Record<string, string>>({});
+  const [publishStatus, setPublishStatus] = useState<string>('');
 
   const handleFormatChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -25,6 +26,16 @@ export default function HomePage() {
     });
     const data = await res.json();
     setResponse(data.outputs);
+  };
+
+  const handlePublish = async (format: string) => {
+    const res = await fetch('/api/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ format, content: response[format] }),
+    });
+    const data = await res.json();
+    setPublishStatus(data.status);
   };
 
   return (
@@ -78,9 +89,20 @@ export default function HomePage() {
             {Object.entries(response).map(([format, output]) => (
               <li key={format}>
                 <strong>{format}:</strong> {output}
+                <button
+                  onClick={() => handlePublish(format)}
+                  className="ml-4 bg-green-500 text-white px-3 py-1 rounded"
+                >
+                  Publish to LinkedIn
+                </button>
               </li>
             ))}
           </ul>
+        </div>
+      )}
+      {publishStatus && (
+        <div className="mt-6 text-green-600 font-semibold">
+          {publishStatus}
         </div>
       )}
     </main>
