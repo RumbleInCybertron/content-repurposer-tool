@@ -4,18 +4,27 @@ import { useState } from 'react';
 
 export default function HomePage() {
   const [content, setContent] = useState('');
-  const [format, setFormat] = useState('linkedin');
-  const [response, setResponse] = useState('');
+  const [formats, setFormats] = useState<string[]>([]);
+  const [response, setResponse] = useState<Record<string, string>>({});
+
+  const handleFormatChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormats((prev) =>
+      prev.includes(value)
+        ? prev.filter((format) => format !== value)
+        : [...prev, value]
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await fetch('/api/repurpose', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, format }),
+      body: JSON.stringify({ content, formats }),
     });
     const data = await res.json();
-    setResponse(data.output);
+    setResponse(data.outputs);
   };
 
   return (
@@ -28,15 +37,33 @@ export default function HomePage() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        <select
-          className="w-full p-3 border rounded mb-4"
-          value={format}
-          onChange={(e) => setFormat(e.target.value)}
-        >
-          <option value="linkedin">LinkedIn Post</option>
-          <option value="email">Email Draft</option>
-          <option value="article">Short-Form Article</option>
-        </select>
+        <fieldset className="mb-4">
+          <legend className="font-semibold mb-2">Select Output Formats:</legend>
+          <label className="block">
+            <input
+              type="checkbox"
+              value="linkedin"
+              onChange={handleFormatChange}
+            />
+            LinkedIn Post
+          </label>
+          <label className="block">
+            <input
+              type="checkbox"
+              value="email"
+              onChange={handleFormatChange}
+            />
+            Email Draft
+          </label>
+          <label className="block">
+            <input
+              type="checkbox"
+              value="article"
+              onChange={handleFormatChange}
+            />
+            Short-Form Article
+          </label>
+        </fieldset>
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded"
@@ -44,10 +71,16 @@ export default function HomePage() {
           Repurpose Content
         </button>
       </form>
-      {response && (
+      {Object.keys(response).length > 0 && (
         <div className="mt-6">
           <h2 className="text-xl font-semibold">Repurposed Content:</h2>
-          <p className="mt-2">{response}</p>
+          <ul className="list-disc ml-6">
+            {Object.entries(response).map(([format, output]) => (
+              <li key={format}>
+                <strong>{format}:</strong> {output}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </main>
