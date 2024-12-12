@@ -90,6 +90,13 @@ export default function HomePage() {
               <li key={format}>
                 <strong>{format}:</strong> {output}
                 <button
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                  onClick={() => window.location.href = '/api/auth/linkedin'}
+                >
+                  Connect LinkedIn
+                </button>
+
+                <button
                   onClick={() => handlePublish(format)}
                   className="ml-4 bg-green-500 text-white px-3 py-1 rounded"
                 >
