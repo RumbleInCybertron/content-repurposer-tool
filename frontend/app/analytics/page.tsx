@@ -2,16 +2,29 @@
 
 import { useEffect, useState } from 'react';
 
+interface AnalyticsItem {
+  format: string;
+  wordCount: number;
+  engagementScore: number;
+  suggestions: string[];
+}
+
+
 export default function AnalyticsPage() {
-  const [analytics, setAnalytics] = useState([]);
+  const [analytics, setAnalytics] = useState<AnalyticsItem[]>([]);
 
   useEffect(() => {
     async function fetchAnalytics() {
       const res = await fetch('/api/analytics');
-      const data = await res.json();
+      const data: AnalyticsItem[] = await res.json();
       setAnalytics(data);
     }
+
     fetchAnalytics();
+
+    const intervalId = setInterval(fetchAnalytics, 10000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
