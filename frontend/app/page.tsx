@@ -41,6 +41,16 @@ export default function HomePage() {
   return (
     <main className="p-6">
       <h1 className="text-2xl font-bold mb-4">Content Repurposer</h1>
+      <nav className="bg-gray-800 p-4 text-white">
+        <ul className="flex gap-4">
+          <li>
+            <a href="/" className="hover:underline">Home</a>
+          </li>
+          <li>
+            <a href="/analytics" className="hover:underline">Analytics</a>
+          </li>
+        </ul>
+      </nav>
       <form onSubmit={handleSubmit}>
         <textarea
           className="w-full p-3 border rounded mb-4"
