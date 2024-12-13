@@ -31,8 +31,8 @@ interface AnalyticsItem {
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsItem[]>([]);
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-  const lineData = analytics.map((item, index) => ({
-    name: `Format ${index + 1}`,
+  const lineData = analytics.map((item) => ({
+    name: item.format,
     wordCount: item.wordCount,
   }));
 
@@ -98,6 +98,7 @@ const pieData = analytics.map((item) => ({
         Export as CSV
       </button>
 
+      {/* Line Chart */}
       <section className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Word Count Trends</h2>
         <ResponsiveContainer width="100%" height={300}>
