@@ -32,12 +32,13 @@ export default function AnalyticsPage() {
   }, []);
 
   const handleExportCSV = () => {
+    const escapeCSV = (value: string) => `"${value.replace(/"/g, '""')}"`;
     const csvContent = 'data:text/csv;charset=utf-8,' +
     ['Format,Word Count,Engagement Score,Readability Score,Tone,Sentimental Analysis,Keyword Analysis,Suggestions']
       .concat(
         analytics.map(
           (item) => 
-            `${item.format},${item.wordCount},${item.engagementScore},${item.readabilityScore},${item.tone},${item.sentiment},"${item.keyTopics.join(', ')}","${item.suggestions.join('; ')}"`
+            `${item.format},${item.wordCount},${item.engagementScore},${item.readabilityScore},${escapeCSV(item.tone)},${escapeCSV(item.sentiment)},${escapeCSV(item.keyTopics.join(', '))},${escapeCSV(item.suggestions.join('; '))}`
         )
       )
       .join('\n');
