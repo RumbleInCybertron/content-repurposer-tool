@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
     "dotenv": "^16.4.6",
     "next": "15.0.3",
     "openai": "^4.74.0",

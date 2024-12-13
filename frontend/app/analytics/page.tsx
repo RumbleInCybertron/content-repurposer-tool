@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  CartesianGrid, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -15,7 +15,8 @@ import {
   LineChart,
   Line,
   Legend,
- } from 'recharts';
+} from 'recharts';
+import { trainModel, predict } from '../../utils/predictionModel';
 
 interface AnalyticsItem {
   format: string;
@@ -28,16 +29,16 @@ interface AnalyticsItem {
   suggestions: string[];
 }
 
+interface Prediction {
+  format: string;
+  currentEngagement: number;
+  predictedEngagement: number;
+}
+
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsItem[]>([]);
-  const [predictions, setPredictions] = useState<
-    { format: string; currentEngagement: number; predictedEngagement: number }[]
-  >([]);
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-  const lineData = analytics.map((item) => ({
-    name: item.format,
-    wordCount: item.wordCount,
-  }));
 
   useEffect(() => {
     async function fetchAnalytics() {
@@ -59,31 +60,58 @@ export default function AnalyticsPage() {
   }, []);
 
   useEffect(() => {
-    async function fetchPredictions() {
-      const res = await fetch('/api/predictions');
-      const data = await res.json();
-      setPredictions(data);
-    }
-  
-    fetchPredictions();
-  }, []);
+    async function generatePredictions() {
+      if (analytics.length === 0) return;
 
-const pieData = analytics.map((item) => ({
-  name: item.format,
-  value: item.engagementScore,
-}));
+      const wordCounts = analytics.map((item) => item.wordCount);
+      const engagementScores = analytics.map((item) => item.engagementScore);
+
+      try {
+        const model = await trainModel({ x: wordCounts, y: engagementScores });
+        // TODO rm hardcoding
+        const futureWordCounts = [50, 150, 300]; // Example future data
+        const predictedEngagements = await predict(model, futureWordCounts);
+
+        console.log('Future Word Counts:', futureWordCounts);
+        console.log('Predicted Engagements:', predictedEngagements);
+        
+        setPredictions(
+          futureWordCounts.map((wordCount, idx) => ({
+            format: `Future Format ${idx + 1}`,
+            currentEngagement: 0, // Placeholder since these are future predictions
+            predictedEngagement: !isNaN(predictedEngagements[idx]) ? predictedEngagements[idx] : 0,
+          }))
+        );
+      } catch (e) {
+        console.error('Error generating predictions:', e);
+      }
+    }
+
+    generatePredictions();
+  }, [analytics]);
+
+  const pieData = analytics.map((item) => ({
+    name: item.format,
+    value: item.engagementScore,
+  }));
+
+  const lineData = analytics.map((item) => ({
+    name: item.format,
+    wordCount: item.wordCount,
+  }));
 
   const handleExportCSV = () => {
     const escapeCSV = (value: string) => `"${value.replace(/"/g, '""')}"`;
-    const csvContent = 'data:text/csv;charset=utf-8,' +
-    ['Format,Word Count,Engagement Score,Readability Score,Tone,Sentimental Analysis,Keyword Analysis,Suggestions']
-      .concat(
-        analytics.map(
-          (item) => 
-            `${item.format},${item.wordCount},${item.engagementScore},${item.readabilityScore},${escapeCSV(item.tone)},${escapeCSV(item.sentiment)},${escapeCSV(item.keyTopics.join(', '))},${escapeCSV(item.suggestions.join('; '))}`
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      ['Format,Word Count,Engagement Score,Readability Score,Tone,Sentimental Analysis,Keyword Analysis,Suggestions']
+        .concat(
+          analytics.map(
+            (item) =>
+              `${item.format},${item.wordCount},${item.engagementScore},${item.readabilityScore},${escapeCSV(item.tone)},${escapeCSV(item.sentiment)},${escapeCSV(item.keyTopics.join(', '))},${escapeCSV(item.suggestions.join('; '))}`
+          )
         )
-      )
-      .join('\n');
+        .join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
@@ -91,7 +119,7 @@ const pieData = analytics.map((item) => ({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }
+  };
 
   const getReadabilityLabel = (score: number) => {
     if (score >= 80) return 'Easy';
@@ -128,6 +156,34 @@ const pieData = analytics.map((item) => ({
         </ResponsiveContainer>
       </section>
 
+      {/* Predictions Chart */}
+      <section className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Engagement Predictions</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart
+            data={predictions.map((item) => ({
+              name: item.format,
+              current: item.currentEngagement ||0,
+              predicted: !isNaN(item.predictedEngagement) ? item.predictedEngagement : 0,
+            }))}
+            margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip formatter={(value) => `${value}`} />
+            <Line type="monotone" dataKey="current" stroke="#8884d8" name="Current" />
+            <Line
+              type="monotone"
+              dataKey="predicted"
+              stroke="#82ca9d"
+              name="Predicted"
+              strokeDasharray="5 5"
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </section>
+
       {/* Pie/Doughnut Chart */}
       <section className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Engagement Scores by Format</h2>
@@ -154,7 +210,7 @@ const pieData = analytics.map((item) => ({
 
       {/* Bar Chart */}
       <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Engagment Scores by Format</h2>
+        <h2 className="text-xl font-semibold mb-4">Engagement Scores by Format</h2>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
             data={analytics}
@@ -166,33 +222,6 @@ const pieData = analytics.map((item) => ({
             <Tooltip />
             <Bar dataKey="engagementScore" fill="#8884d8" />
           </BarChart>
-        </ResponsiveContainer>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Engagement Predictions</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart
-            data={predictions.map((item) => ({
-              name: item.format,
-              current: item.currentEngagement,
-              predicted: item.predictedEngagement,
-            }))}
-            margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="current" stroke="#8884d8" name="Current" />
-            <Line
-              type="monotone"
-              dataKey="predicted"
-              stroke="#82ca9d"
-              name="Predicted"
-              strokeDasharray="5 5"
-            />
-          </LineChart>
         </ResponsiveContainer>
       </section>
 
@@ -226,19 +255,19 @@ const pieData = analytics.map((item) => ({
                 <td className="border border-gray-300 p-2">
                   <ul>
                     {item.keyTopics.length > 0
-                    ? item.keyTopics.map((keyTopic, idx) => (
-                        <li key={idx} className="mb-2">{keyTopic}</li>
-                      ))
-                    : <li>None</li>}
+                      ? item.keyTopics.map((keyTopic, idx) => (
+                          <li key={idx} className="mb-2">{keyTopic}</li>
+                        ))
+                      : <li>None</li>}
                   </ul>
-                </td>           
+                </td>            
                 <td className="border border-gray-300 p-2">
                   <ul className="list-disc ml-4">
                     {item.suggestions.length > 0
-                    ? item.suggestions.map((suggestion, idx) => (
-                        <li key={idx}>{suggestion}</li>
-                      ))
-                    : <li>None</li>}
+                      ? item.suggestions.map((suggestion, idx) => (
+                          <li key={idx}>{suggestion}</li>
+                        ))
+                      : <li>None</li>}
                   </ul>
                 </td>
               </tr>
