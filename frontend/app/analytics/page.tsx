@@ -12,6 +12,8 @@ import {
   PieChart,
   Pie,
   Cell,
+  LineChart,
+  Line,
  } from 'recharts';
 
 interface AnalyticsItem {
@@ -25,10 +27,13 @@ interface AnalyticsItem {
   suggestions: string[];
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsItem[]>([]);
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+  const lineData = analytics.map((item, index) => ({
+    name: `Format ${index + 1}`,
+    wordCount: item.wordCount,
+  }));
 
   useEffect(() => {
     async function fetchAnalytics() {
@@ -91,6 +96,22 @@ const pieData = analytics.map((item) => ({
       >
         Export as CSV
       </button>
+
+      <section className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Word Count Trends</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart
+            data={lineData}
+            margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="wordCount" stroke="#8884d8" />
+          </LineChart>
+        </ResponsiveContainer>
+      </section>
 
       {/* Pie/Doughnut Chart */}
       <section className="mb-6">
