@@ -7,6 +7,10 @@ interface AnalyticsItem {
   format: string;
   wordCount: number;
   engagementScore: number;
+  readabilityScore: number;
+  tone: string;
+  sentiment: string;
+  keyTopics: string[];
   suggestions: string[];
 }
 
@@ -29,11 +33,11 @@ export default function AnalyticsPage() {
 
   const handleExportCSV = () => {
     const csvContent = 'data:text/csv;charset=utf-8,' +
-    ['Format,Word Count,Engagement Score,Suggestions']
+    ['Format,Word Count,Engagement Score,Readability Score,Tone,Sentimental Analysis,Keyword Analysis,Suggestions']
       .concat(
         analytics.map(
           (item) => 
-            `${item.format},${item.wordCount},${item.engagementScore},"${item.suggestions.join('; ')}"`
+            `${item.format},${item.wordCount},${item.engagementScore},${item.readabilityScore},${item.tone},${item.sentiment},"${item.keyTopics.join(', ')}","${item.suggestions.join('; ')}"`
         )
       )
       .join('\n');
@@ -83,6 +87,11 @@ export default function AnalyticsPage() {
             <tr>
               <th className="border border-gray-300 p-2">Format</th>
               <th className="border border-gray-300 p-2">Word Count</th>
+              <th className="border border-gray-300 p-2">Engagement Score</th>
+              <th className="border border-gray-300 p-2">Readability Score</th>
+              <th className="border border-gray-300 p-2">Tone</th>
+              <th className="border border-gray-300 p-2">Sentiment</th>
+              <th className="border border-gray-300 p-2">Key Topics</th>
               <th className="border border-gray-300 p-2">Suggestions</th>
             </tr>
           </thead>
@@ -91,6 +100,17 @@ export default function AnalyticsPage() {
               <tr key={index}>
                 <td className="border border-gray-300 p-2">{item.format}</td>
                 <td className="border border-gray-300 p-2">{item.wordCount}</td>
+                <td className="border border-gray-300 p-2">{item.engagementScore}</td>
+                <td className="border border-gray-300 p-2">{item.readabilityScore}</td>
+                <td className="border border-gray-300 p-2">{item.tone}</td>
+                <td className="border border-gray-300 p-2">{item.sentiment}</td>
+                <td className="border border-gray-300 p-2">
+                  <ul>
+                    {item.keyTopics.map((keyTopic, idx) => (
+                      <li key={idx} className="mb-2">{keyTopic}</li>
+                    ))}
+                  </ul>
+                </td>           
                 <td className="border border-gray-300 p-2">
                   <ul className="list-disc ml-4">
                     {item.suggestions.map((suggestion, idx) => (
