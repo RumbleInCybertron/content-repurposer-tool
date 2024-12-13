@@ -14,6 +14,7 @@ import {
   Cell,
   LineChart,
   Line,
+  Legend,
  } from 'recharts';
 
 interface AnalyticsItem {
@@ -126,12 +127,13 @@ const pieData = analytics.map((item) => ({
               cy="50%"
               outerRadius={100}
               fill="#8884d8"
-              label
+              label={({ value, percent }) => `${value}: ${(percent * 100).toFixed(0)}%`}
             >
               {pieData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
+            <Legend />
           </PieChart>
         </ResponsiveContainer>
       </section>
