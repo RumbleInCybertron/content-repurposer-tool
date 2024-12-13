@@ -30,6 +30,9 @@ interface AnalyticsItem {
 
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsItem[]>([]);
+  const [predictions, setPredictions] = useState<
+    { format: string; currentEngagement: number; predictedEngagement: number }[]
+  >([]);
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
   const lineData = analytics.map((item) => ({
     name: item.format,
@@ -53,6 +56,16 @@ export default function AnalyticsPage() {
     const intervalId = setInterval(fetchAnalytics, 10000);
 
     return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    async function fetchPredictions() {
+      const res = await fetch('/api/predictions');
+      const data = await res.json();
+      setPredictions(data);
+    }
+  
+    fetchPredictions();
   }, []);
 
 const pieData = analytics.map((item) => ({
@@ -153,6 +166,33 @@ const pieData = analytics.map((item) => ({
             <Tooltip />
             <Bar dataKey="engagementScore" fill="#8884d8" />
           </BarChart>
+        </ResponsiveContainer>
+      </section>
+
+      <section className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Engagement Predictions</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart
+            data={predictions.map((item) => ({
+              name: item.format,
+              current: item.currentEngagement,
+              predicted: item.predictedEngagement,
+            }))}
+            margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="current" stroke="#8884d8" name="Current" />
+            <Line
+              type="monotone"
+              dataKey="predicted"
+              stroke="#82ca9d"
+              name="Predicted"
+              strokeDasharray="5 5"
+            />
+          </LineChart>
         </ResponsiveContainer>
       </section>
 
