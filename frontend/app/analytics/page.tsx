@@ -51,6 +51,12 @@ export default function AnalyticsPage() {
     document.body.removeChild(link);
   }
 
+  const getReadabilityLabel = (score: number) => {
+    if (score >= 80) return 'Easy';
+    if (score >= 50) return 'Medium';
+    return 'Difficult';
+  };
+
   return (
     <main className="p-6">
       <h1 className="text-2xl font-bold mb-4">Content Analytics</h1>
@@ -102,7 +108,9 @@ export default function AnalyticsPage() {
                 <td className="border border-gray-300 p-2">{item.format}</td>
                 <td className="border border-gray-300 p-2">{item.wordCount}</td>
                 <td className="border border-gray-300 p-2">{item.engagementScore}</td>
-                <td className="border border-gray-300 p-2">{item.readabilityScore}</td>
+                <td className="border border-gray-300 p-2">
+                  {item.readabilityScore} ({getReadabilityLabel(item.readabilityScore)})
+                </td>
                 <td className="border border-gray-300 p-2">{item.tone}</td>
                 <td className="border border-gray-300 p-2">{item.sentiment}</td>
                 <td className="border border-gray-300 p-2">
