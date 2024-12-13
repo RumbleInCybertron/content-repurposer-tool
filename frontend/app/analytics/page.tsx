@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  CartesianGrid, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+ } from 'recharts';
 
 interface AnalyticsItem {
   format: string;
@@ -13,6 +24,8 @@ interface AnalyticsItem {
   keyTopics: string[];
   suggestions: string[];
 }
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsItem[]>([]);
@@ -35,6 +48,11 @@ export default function AnalyticsPage() {
 
     return () => clearInterval(intervalId);
   }, []);
+
+const pieData = analytics.map((item) => ({
+  name: item.format,
+  value: item.engagementScore,
+}));
 
   const handleExportCSV = () => {
     const escapeCSV = (value: string) => `"${value.replace(/"/g, '""')}"`;
@@ -73,6 +91,29 @@ export default function AnalyticsPage() {
       >
         Export as CSV
       </button>
+
+      {/* Pie/Doughnut Chart */}
+      <section className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Engagement Scores by Format</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={pieData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              fill="#8884d8"
+              label
+            >
+              {pieData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+      </section>
 
       {/* Bar Chart */}
       <section className="mb-6">
