@@ -18,7 +18,7 @@ export async function GET() {
     {
       format: 'article',
       wordCount: 350,
-      engagementScore: 80,
+      engagementScore: 85,
       suggestions: ['Add a strong conclusion', 'Include a call-to-action'],
     },
   ];
