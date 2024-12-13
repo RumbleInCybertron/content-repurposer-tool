@@ -19,9 +19,14 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     async function fetchAnalytics() {
-      const res = await fetch('/api/analytics');
-      const data: AnalyticsItem[] = await res.json();
-      setAnalytics(data);
+      try {
+        const res = await fetch('/api/analytics');
+        if (!res.ok) throw new Error('Failed to fetch analytics');
+        const data: AnalyticsItem[] = await res.json();
+        setAnalytics(data);
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     fetchAnalytics();
