@@ -107,16 +107,20 @@ export default function AnalyticsPage() {
                 <td className="border border-gray-300 p-2">{item.sentiment}</td>
                 <td className="border border-gray-300 p-2">
                   <ul>
-                    {item.keyTopics.map((keyTopic, idx) => (
-                      <li key={idx} className="mb-2">{keyTopic}</li>
-                    ))}
+                    {item.keyTopics.length > 0
+                    ? item.keyTopics.map((keyTopic, idx) => (
+                        <li key={idx} className="mb-2">{keyTopic}</li>
+                      ))
+                    : <li>None</li>}
                   </ul>
                 </td>           
                 <td className="border border-gray-300 p-2">
                   <ul className="list-disc ml-4">
-                    {item.suggestions.map((suggestion, idx) => (
-                      <li key={idx}>{suggestion}</li>
-                    ))}
+                    {item.suggestions.length > 0
+                    ? item.suggestions.map((suggestion, idx) => (
+                        <li key={idx}>{suggestion}</li>
+                      ))
+                    : <li>None</li>}
                   </ul>
                 </td>
               </tr>
