@@ -63,13 +63,14 @@ export default function AnalyticsPage() {
     async function generatePredictions() {
       if (analytics.length === 0) return;
 
+      const mockData = generateMockData(100);
       const wordCounts = analytics.map((item) => item.wordCount);
       const engagementScores = analytics.map((item) => item.engagementScore);
 
       try {
         const model = await trainModel({ x: wordCounts, y: engagementScores });
         // TODO rm hardcoding
-        const futureWordCounts = [50, 150, 300]; // Example future data
+        const futureWordCounts = [200, 400, 600, 800, 1000]; // Example future data
         const predictedEngagements = await predict(model, futureWordCounts);
 
         console.log('Future Word Counts:', futureWordCounts);
@@ -78,7 +79,7 @@ export default function AnalyticsPage() {
         setPredictions(
           futureWordCounts.map((wordCount, idx) => ({
             format: `Future Format ${idx + 1}`,
-            currentEngagement: 0, // Placeholder since these are future predictions
+            currentEngagement: Math.floor(Math.random() * 100), // Random mock current engagement
             predictedEngagement: !isNaN(predictedEngagements[idx]) ? predictedEngagements[idx] : 0,
           }))
         );
@@ -126,6 +127,17 @@ export default function AnalyticsPage() {
     if (score >= 50) return 'Medium';
     return 'Difficult';
   };
+
+  const generateMockData = (count: number) => {
+    const mockData = [];
+    for (let i = 0; i < count; i++) {
+      const wordCount = Math.floor(Math.random() * 1000);
+      const engagementScore = Math.floor(wordCount * 0.1 + Math.random() * 20);
+      mockData.push({ wordCount, engagementScore });
+    }
+    return mockData;
+  };
+  
 
   return (
     <main className="p-6">
