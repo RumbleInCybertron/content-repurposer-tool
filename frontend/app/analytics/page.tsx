@@ -27,9 +27,36 @@ export default function AnalyticsPage() {
     return () => clearInterval(intervalId);
   }, []);
 
+  const handleExportCSV = () => {
+    const csvContent = 'data:text/csv;charset=utf-8,' +
+    ['Format,Word Count,Engagement Score,Suggestions']
+      .concat(
+        analytics.map(
+          (item) => 
+            `${item.format},${item.wordCount},${item.engagementScore},"${item.suggestions.join('; ')}"`
+        )
+      )
+      .join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'content_analytics.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   return (
     <main className="p-6">
       <h1 className="text-2xl font-bold mb-4">Content Analytics</h1>
+
+      {/* Export Button */}
+      <button
+        onClick={handleExportCSV}
+        className="bg-green-500 text-white px-4 py-2 rounded mb-4"
+      >
+        Export as CSV
+      </button>
 
       {/* Bar Chart */}
       <section className="mb-6">
