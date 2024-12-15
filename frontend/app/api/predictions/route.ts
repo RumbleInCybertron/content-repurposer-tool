@@ -4,6 +4,7 @@ export async function GET() {
   // Mock analytics data
   const currentData = [
     { format: 'linkedin', engagementScore: 78 },
+    { format: 'twitter', engagementScore: 55 },
     { format: 'email', engagementScore: 60 },
     { format: 'article', engagementScore: 85 },
   ];
