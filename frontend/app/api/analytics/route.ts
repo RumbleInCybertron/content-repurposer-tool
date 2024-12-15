@@ -14,6 +14,16 @@ export async function GET() {
       suggestions: ['Use more hashtags', 'Mention a trending topic'],
     },
     {
+      format: 'twitter',
+      wordCount: 45,
+      engagementScore: 78,
+      readabilityScore: 65,
+      tone: 'Professional',
+      sentiment: 'Positive',
+      keyTopics: ['SEO', 'Marketing'],
+      suggestions: ['Use more hashtags', 'Mention a trending topic'],
+    },
+    {
       format: 'email',
       wordCount: 150,
       engagementScore: 60,
