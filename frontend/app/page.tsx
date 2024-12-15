@@ -19,23 +19,34 @@ export default function HomePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('/api/repurpose', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, formats }),
-    });
-    const data = await res.json();
-    setResponse(data.outputs);
+    try {
+      const res = await fetch('/api/repurpose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, formats }),
+      });
+      if (!res.ok) throw new Error('Failed to fetch repurposed content');
+      const data = await res.json();
+      setResponse(data.outputs || {});
+    } catch (error) {
+      console.error('Error:', error);
+      setResponse({}); 
+    }
   };
 
-  const handlePublish = async (format: string) => {
-    const res = await fetch('/api/publish', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ format, content: response[format] }),
-    });
-    const data = await res.json();
-    setPublishStatus(data.status);
+  const handlePublish = async (platform: string) => {
+    try {
+      const res = await fetch(`/api/publish/${platform}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: response[platform] }),
+      });
+      const data = await res.json();
+      setPublishStatus(`${platform.charAt(0).toUpperCase() + platform.slice(1)}: ${data.status}`);
+    } catch (error) {
+      console.error('Error publishing:', error);
+      setPublishStatus(`Failed to publish to ${platform}`);
+    }
   };
 
   return (
@@ -71,6 +82,14 @@ export default function HomePage() {
           <label className="block">
             <input
               type="checkbox"
+              value="twitter"
+              onChange={handleFormatChange}
+            />
+            Twitter Post
+          </label>
+          <label className="block">
+            <input
+              type="checkbox"
               value="email"
               onChange={handleFormatChange}
             />
@@ -92,7 +111,7 @@ export default function HomePage() {
           Repurpose Content
         </button>
       </form>
-      {Object.keys(response).length > 0 && (
+      {response && Object.keys(response).length > 0 && (
         <div className="mt-6">
           <h2 className="text-xl font-semibold">Repurposed Content:</h2>
           <ul className="list-disc ml-6">
@@ -101,16 +120,19 @@ export default function HomePage() {
                 <strong>{format}:</strong> {output}
                 <button
                   className="bg-blue-600 text-white px-4 py-2 rounded"
-                  onClick={() => window.location.href = '/api/auth/linkedin'}
+                  onClick={() => window.location.href = `/api/auth/${format}`}
                 >
-                  Connect LinkedIn
+                  Connect {format.charAt(0).toUpperCase() + format.slice(1)}
                 </button>
 
                 <button
                   onClick={() => handlePublish(format)}
-                  className="ml-4 bg-green-500 text-white px-3 py-1 rounded"
+                  disabled={!response[format]}
+                  className={`ml-4 px-3 py-1 rounded ${
+                    response[format] ? 'bg-green-500 text-white' : 'bg-gray-400 text-gray-700'
+                  }`}
                 >
-                  Publish to LinkedIn
+                  Publish to {format.charAt(0).toUpperCase() + format.slice(1)}
                 </button>
               </li>
             ))}
