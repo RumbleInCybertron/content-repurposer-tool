@@ -6,7 +6,15 @@ export async function GET(request: Request) {
   const state = searchParams.get('state');
 
   if (!code) {
-    return NextResponse.json({ error: 'Authorization code not provided' }, { status: 400 });
+    return NextResponse.json({ error: 'Authorization code is missing' }, { status: 400 });
+  }
+
+  // Retrieve the code_verifier from the cookies
+  const cookies = request.headers.get('cookie') || '';
+  const codeVerifier = cookies.split(';').find((cookie) => cookie.trim().startsWith('code_verifier='))?.split('=')[1];
+
+  if (!codeVerifier) {
+    return NextResponse.json({ error: 'Code verifier is missing' }, { status: 400 });
   }
 
   try {
@@ -22,6 +30,7 @@ export async function GET(request: Request) {
         code,
         grant_type: 'authorization_code',
         redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/twitter/callback`,
+        code_verifier: codeVerifier,
       }),
     });
 
