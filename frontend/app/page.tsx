@@ -10,8 +10,11 @@ export default function HomePage() {
   const [response, setResponse] = useState<Record<string, string>>({});
   const [publishStatus, setPublishStatus] = useState<string>('');
   const [authenticatedPlatforms, setAuthenticatedPlatforms] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     const status = searchParams.get('status');
     const platform = searchParams.get('platform');
     if (status === 'connected' && platform) {
@@ -25,7 +28,11 @@ export default function HomePage() {
   }, [searchParams]);
 
   useEffect(() => {
-    localStorage.setItem('content', content);
+    if (!content.trim()) {
+      localStorage.removeItem('content');
+    } else {
+      localStorage.setItem('content', content);
+    }
   }, [content]);
 
   useEffect(() => {
@@ -44,10 +51,19 @@ export default function HomePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!content || formats.length === 0) {
-      console.error('Error: Content or formats missing');
+    if (!isClient) return;
+
+    if (!content.trim()) {
+      setErrorMessage('Please enter some content before repurposing.');
       return;
     }
+
+    if (formats.length === 0) {
+      setErrorMessage('Please select at least one format.');
+      return;
+    }
+
+    setErrorMessage(null);
 
     try {
       const res = await fetch('/api/repurpose', {
@@ -84,6 +100,13 @@ export default function HomePage() {
   return (
     <main className="p-6">
       <h1 className="text-2xl font-bold mb-4">Content Repurposer</h1>
+
+      {isClient && errorMessage && (
+        <div className="mb-4 text-red-600 font-semibold">
+          {errorMessage}
+        </div>
+      )}
+
       <nav className="bg-gray-800 p-4 text-white">
         <ul className="flex gap-4">
           <li>
@@ -94,6 +117,7 @@ export default function HomePage() {
           </li>
         </ul>
       </nav>
+
       <form onSubmit={handleSubmit}>
         <textarea
           className="w-full p-3 border rounded mb-4 text-slate-900"
@@ -143,6 +167,7 @@ export default function HomePage() {
           Repurpose Content
         </button>
       </form>
+      
       {response && Object.keys(response).length > 0 && (
         <div className="mt-6">
           <h2 className="text-xl font-semibold">Repurposed Content:</h2>
@@ -150,6 +175,7 @@ export default function HomePage() {
             {Object.entries(response).map(([format, output]) => (
               <li key={format}>
                 <strong>{format}:</strong> {output}
+
                 {!authenticatedPlatforms.includes(format) && (
                   <button
                     className="bg-blue-600 text-white px-4 py-2 rounded"
@@ -158,7 +184,7 @@ export default function HomePage() {
                     Connect {format.charAt(0).toUpperCase() + format.slice(1)}
                   </button>
                 )}
-
+ 
                 <button
                   onClick={() => handlePublish(format)}
                   disabled={!response[format] || !authenticatedPlatforms.includes(format)}
