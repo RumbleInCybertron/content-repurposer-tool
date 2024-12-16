@@ -17,7 +17,20 @@ export default function HomePage() {
     if (status === 'connected' && platform) {
       setAuthenticatedPlatforms((prev) => [...new Set([...prev, platform])]);
     }
+
+    const savedContent = localStorage.getItem('content');
+    const savedFormats = localStorage.getItem('formats');
+    if (savedContent) setContent(savedContent);
+    if (savedFormats) setFormats(JSON.parse(savedFormats));
   }, [searchParams]);
+
+  useEffect(() => {
+    localStorage.setItem('content', content);
+  }, [content]);
+
+  useEffect(() => {
+    localStorage.setItem('formats', JSON.stringify(formats));
+  }, [formats]);  
 
   const handleFormatChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -30,13 +43,21 @@ export default function HomePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!content || formats.length === 0) {
+      console.error('Error: Content or formats missing');
+      return;
+    }
+
     try {
       const res = await fetch('/api/repurpose', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, formats }),
       });
-      if (!res.ok) throw new Error('Failed to fetch repurposed content');
+
+      if (!res.ok) throw new Error(`Failed to fetch: ${res.statusText}`);
+
       const data = await res.json();
       setResponse(data.outputs || {});
     } catch (error) {
