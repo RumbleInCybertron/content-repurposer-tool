@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
+import { redis } from '../../../../../utils/redisClient';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const state = searchParams.get('state');
 
-  if (!code) {
-    return NextResponse.json({ error: 'Authorization code is missing' }, { status: 400 });
+  if (!code || !state) {
+    return NextResponse.json({ error: 'Authorization code or state is missing' }, { status: 400 });
   }
 
   // Retrieve the code_verifier from the cookies
@@ -40,10 +41,13 @@ export async function GET(request: Request) {
 
     const tokens = await response.json();
 
-    // TODO Save tokens to database or session
-    return NextResponse.json({ tokens });
+    await redis.set(`twitter_tokens:${state}`, JSON.stringify(tokens), { ex: tokens.expires_in });
+
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/?status=connected&platform=twitter`);
   } catch (error: unknown) {
-      if (error instanceof Error)
+      if (error instanceof Error) {
+        console.error('Error during token exchange:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
+      }
   }
 }
