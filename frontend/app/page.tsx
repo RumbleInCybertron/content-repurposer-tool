@@ -1,12 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 export default function HomePage() {
+  const searchParams = useSearchParams();
   const [content, setContent] = useState('');
   const [formats, setFormats] = useState<string[]>([]);
   const [response, setResponse] = useState<Record<string, string>>({});
   const [publishStatus, setPublishStatus] = useState<string>('');
+  const [authenticatedPlatforms, setAuthenticatedPlatforms] = useState<string[]>([]);
+
+  useEffect(() => {
+    const status = searchParams.get('status');
+    const platform = searchParams.get('platform');
+    if (status === 'connected' && platform) {
+      setAuthenticatedPlatforms((prev) => [...new Set([...prev, platform])]);
+    }
+  }, [searchParams]);
 
   const handleFormatChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -39,7 +50,7 @@ export default function HomePage() {
       const res = await fetch(`/api/publish/${platform}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: response[platform] }),
+        body: JSON.stringify({ platform, content: response[platform] }),
       });
       const data = await res.json();
       setPublishStatus(`${platform.charAt(0).toUpperCase() + platform.slice(1)}: ${data.status}`);
@@ -64,7 +75,7 @@ export default function HomePage() {
       </nav>
       <form onSubmit={handleSubmit}>
         <textarea
-          className="w-full p-3 border rounded mb-4"
+          className="w-full p-3 border rounded mb-4 text-slate-900"
           placeholder="Paste your content here..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -118,18 +129,22 @@ export default function HomePage() {
             {Object.entries(response).map(([format, output]) => (
               <li key={format}>
                 <strong>{format}:</strong> {output}
-                <button
-                  className="bg-blue-600 text-white px-4 py-2 rounded"
-                  onClick={() => window.location.href = `/api/auth/${format}`}
-                >
-                  Connect {format.charAt(0).toUpperCase() + format.slice(1)}
-                </button>
+                {!authenticatedPlatforms.includes(format) && (
+                  <button
+                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                    onClick={() => window.location.href = `/api/auth/${format}`}
+                  >
+                    Connect {format.charAt(0).toUpperCase() + format.slice(1)}
+                  </button>
+                )}
 
                 <button
                   onClick={() => handlePublish(format)}
-                  disabled={!response[format]}
+                  disabled={!response[format] || !authenticatedPlatforms.includes(format)}
                   className={`ml-4 px-3 py-1 rounded ${
-                    response[format] ? 'bg-green-500 text-white' : 'bg-gray-400 text-gray-700'
+                    response[format] && authenticatedPlatforms.includes(format)
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-gray-400 text-gray-700'
                   }`}
                 >
                   Publish to {format.charAt(0).toUpperCase() + format.slice(1)}
