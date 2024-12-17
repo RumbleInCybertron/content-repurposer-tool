@@ -41,11 +41,13 @@ export default function HomePage() {
 
   const handleFormatChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setFormats((prev) =>
-      prev.includes(value)
+    setFormats((prev) => {
+      const updatedFormats = prev.includes(value)
         ? prev.filter((format) => format !== value)
-        : [...prev, value]
-    );
+        : [...prev, value];
+      console.log('Updated formats:', updatedFormats); // Debugging log
+      return updatedFormats;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,6 +67,8 @@ export default function HomePage() {
 
     setErrorMessage(null);
 
+    console.log('Submitting:', { content, formats }); // Debugging log
+
     try {
       const res = await fetch('/api/repurpose', {
         method: 'POST',
@@ -75,6 +79,7 @@ export default function HomePage() {
       if (!res.ok) throw new Error(`Failed to fetch: ${res.statusText}`);
 
       const data = await res.json();
+      console.log('Response from backend:', data); // Debugging log
       setResponse(data.outputs || {});
     } catch (error) {
       console.error('Error:', error);
@@ -132,7 +137,8 @@ export default function HomePage() {
               type="checkbox"
               value="linkedin"
               onChange={handleFormatChange}
-            />
+              checked={formats.includes('linkedin')}
+              />
             LinkedIn Post
           </label>
           <label className="block">
@@ -140,7 +146,8 @@ export default function HomePage() {
               type="checkbox"
               value="twitter"
               onChange={handleFormatChange}
-            />
+              checked={formats.includes('twitter')}
+              />
             Twitter Post
           </label>
           <label className="block">
@@ -148,7 +155,8 @@ export default function HomePage() {
               type="checkbox"
               value="email"
               onChange={handleFormatChange}
-            />
+              checked={formats.includes('email')}
+              />
             Email Draft
           </label>
           <label className="block">
@@ -156,6 +164,7 @@ export default function HomePage() {
               type="checkbox"
               value="article"
               onChange={handleFormatChange}
+              checked={formats.includes('article')}
             />
             Short-Form Article
           </label>
