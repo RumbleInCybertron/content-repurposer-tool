@@ -62,13 +62,13 @@ export default function NavBar({ links }: NavBarProps) {
 
       {/* Mobile Dropdown Menu */}
       {isMenuOpen && (
-        <div className="absolute top-16 left-0 w-full bg-gray-800 text-white flex flex-col space-y-4 p-4 md:hidden">
+        <div className="absolute top-16 left-0 w-full bg-gray-700 text-white flex flex-col space-y-2 shadow-lg p-4 rounded-lg z-50 md:hidden">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`hover:underline ${
-                pathname === link.href ? 'text-blue-400 underline' : ''
+              className={`py-2 px-4 rounded-md hover:bg-gray-600 hover:text-blue-400 ${
+                pathname === link.href ? 'bg-gray-600 text-blue-400' : ''
               }`}
               onClick={() => setIsMenuOpen(false)} // Close menu on click
             >
