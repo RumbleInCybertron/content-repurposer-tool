@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
@@ -14,10 +15,14 @@ interface NavBarProps {
 
 export default function NavBar({ links }: NavBarProps) {
   const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <nav className="bg-gray-800 text-white px-6 py-4 flex justify-between items-center">
+      {/* Logo */}
       <div className="text-lg font-bold">Content Repurposer</div>
+
+      {/* Desktop Links */}
       <div className="hidden md:flex space-x-6">
         {links.map((link) => (
           <Link
@@ -31,9 +36,13 @@ export default function NavBar({ links }: NavBarProps) {
           </Link>
         ))}
       </div>
+
       {/* Mobile Menu Button */}
       <div className="md:hidden">
-        <button className="text-white">
+        <button
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+          className="text-white"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -50,6 +59,24 @@ export default function NavBar({ links }: NavBarProps) {
           </svg>
         </button>
       </div>
+
+      {/* Mobile Dropdown Menu */}
+      {isMenuOpen && (
+        <div className="absolute top-16 left-0 w-full bg-gray-800 text-white flex flex-col space-y-4 p-4 md:hidden">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`hover:underline ${
+                pathname === link.href ? 'text-blue-400 underline' : ''
+              }`}
+              onClick={() => setIsMenuOpen(false)} // Close menu on click
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      )}      
     </nav>
   );
 }
