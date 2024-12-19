@@ -42,6 +42,7 @@ export default function NavBar({ links }: NavBarProps) {
         <button
           onClick={() => setIsMenuOpen((prev) => !prev)}
           className="text-white"
+          aria-label="Toggle menu"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -60,12 +61,20 @@ export default function NavBar({ links }: NavBarProps) {
         </button>
       </div>
 
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
+          isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setIsMenuOpen(false)} // Close menu on backdrop click
+      ></div>
+
       {/* Mobile Dropdown Menu */}
       <div
         className={`absolute top-16 left-0 w-full bg-gray-700 text-white flex flex-col space-y-2 shadow-lg p-4 rounded-lg z-50 transition-all duration-300 ease-in-out transform ${
           isMenuOpen 
-            ? 'opacity-100 scale-100' 
-            : 'opacity-0 scale-95'
+            ? 'opacity-100 scale-100 translate-y-0' 
+            : 'opacity-0 scale-95 -translate-y-4'
         }`}
       >
         {links.map((link) => (
