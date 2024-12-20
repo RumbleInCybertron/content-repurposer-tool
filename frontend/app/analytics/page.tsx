@@ -75,7 +75,7 @@ export default function AnalyticsPage() {
 
         console.log('Future Word Counts:', futureWordCounts);
         console.log('Predicted Engagements:', predictedEngagements);
-        
+
         setPredictions(
           futureWordCounts.map((wordCount, idx) => ({
             format: `Future Format ${idx + 1}`,
@@ -137,7 +137,7 @@ export default function AnalyticsPage() {
     }
     return mockData;
   };
-  
+
 
   return (
     <main className="p-6">
@@ -146,7 +146,7 @@ export default function AnalyticsPage() {
       {/* Export Button */}
       <button
         onClick={handleExportCSV}
-        className="bg-green-500 text-white px-4 py-2 rounded mb-4"
+        className="bg-secondary text-primary px-4 py-2 rounded mb-4"
       >
         Export as CSV
       </button>
@@ -175,7 +175,7 @@ export default function AnalyticsPage() {
           <LineChart
             data={predictions.map((item) => ({
               name: item.format,
-              current: item.currentEngagement ||0,
+              current: item.currentEngagement || 0,
               predicted: !isNaN(item.predictedEngagement) ? item.predictedEngagement : 0,
             }))}
             margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
@@ -268,17 +268,17 @@ export default function AnalyticsPage() {
                   <ul>
                     {item.keyTopics.length > 0
                       ? item.keyTopics.map((keyTopic, idx) => (
-                          <li key={idx} className="mb-2">{keyTopic}</li>
-                        ))
+                        <li key={idx} className="mb-2">{keyTopic}</li>
+                      ))
                       : <li>None</li>}
                   </ul>
-                </td>            
+                </td>
                 <td className="border border-gray-300 p-2">
                   <ul className="list-disc ml-4">
                     {item.suggestions.length > 0
                       ? item.suggestions.map((suggestion, idx) => (
-                          <li key={idx}>{suggestion}</li>
-                        ))
+                        <li key={idx}>{suggestion}</li>
+                      ))
                       : <li>None</li>}
                   </ul>
                 </td>

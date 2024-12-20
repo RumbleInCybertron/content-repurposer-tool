@@ -45,7 +45,7 @@ export default function HomePage() {
 
   useEffect(() => {
     localStorage.setItem('formats', JSON.stringify(formats));
-  }, [formats]);  
+  }, [formats]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -100,7 +100,7 @@ export default function HomePage() {
       setResponse(data.outputs || {});
     } catch (error) {
       console.error('Error:', error);
-      setResponse({}); 
+      setResponse({});
     }
   };
 
@@ -115,17 +115,17 @@ export default function HomePage() {
     }
 
     console.log('Publishing:', { platform, content: response[platform] });
-    
+
     if (!state) {
       console.error('State is missing for Twitter publishing');
       setPublishStatus('Failed to publish: State is missing.');
       return;
     }
-    
+
     console.log('Publishing with state:', state);
 
     setPublishStatus(`Publishing to ${platform}...`);
-    
+
     try {
       const res = await fetch(`/api/publish/${platform}`, {
         method: 'POST',
@@ -135,9 +135,9 @@ export default function HomePage() {
 
       const data = await res.json();
 
-      if (res.ok) 
+      if (res.ok)
         setPublishStatus(`${platform.charAt(0).toUpperCase() + platform.slice(1)}: ${data.status}`);
-      else 
+      else
         setPublishStatus(`Failed to publish to ${platform}: ${data.error}`);
     } catch (error) {
       console.error('Error publishing:', error);
@@ -147,7 +147,7 @@ export default function HomePage() {
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Content Repurposer</h1>
+      <h1 className="text-2xl text-secondary font-bold mb-4">Content Repurposer</h1>
 
       {platformStatus && (
         <div className="mb-4 text-green-600">
@@ -161,7 +161,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <nav className="bg-gray-800 p-4 text-white">
+      <nav className="bg-primary p-4 text-netural-white">
         <ul className="flex gap-4">
           <li>
             <a href="/" className="hover:underline">Home</a>
@@ -181,13 +181,14 @@ export default function HomePage() {
         />
         <fieldset className="mb-4">
           <legend className="font-semibold mb-2">Select Output Formats:</legend>
-          <label className="block">
+          <label className="block text-white">
             <input
               type="checkbox"
               value="linkedin"
               onChange={handleFormatChange}
               checked={formats.includes('linkedin')}
-              />
+              className="accent-accent-coral/70"
+            />
             LinkedIn Post
           </label>
           <label className="block">
@@ -196,6 +197,7 @@ export default function HomePage() {
               value="twitter"
               onChange={handleFormatChange}
               checked={formats.includes('twitter')}
+              className="accent-accent-coral/70"
               />
             Twitter Post
           </label>
@@ -205,6 +207,7 @@ export default function HomePage() {
               value="email"
               onChange={handleFormatChange}
               checked={formats.includes('email')}
+              className="accent-accent-coral/70"
               />
             Email Draft
           </label>
@@ -214,18 +217,19 @@ export default function HomePage() {
               value="article"
               onChange={handleFormatChange}
               checked={formats.includes('article')}
+              className="accent-accent-coral/70"
             />
             Short-Form Article
           </label>
         </fieldset>
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-light"
         >
           Repurpose Content
         </button>
       </form>
-      
+
       {response && Object.keys(response).length > 0 && (
         <div className="mt-6">
           <h2 className="text-xl font-semibold">Repurposed Content:</h2>
@@ -239,21 +243,20 @@ export default function HomePage() {
 
                 {!authenticatedPlatforms.includes(format) && (
                   <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary hover:text-primary"
                     onClick={() => window.location.href = `/api/auth/${format}`}
                   >
                     Connect {format.charAt(0).toUpperCase() + format.slice(1)}
                   </button>
                 )}
- 
+
                 <button
                   onClick={() => handlePublish(format)}
                   disabled={!response[format] || !state}
-                  className={`ml-4 px-3 py-1 rounded ${
-                    response[format] && authenticatedPlatforms.includes(format)
-                      ? 'bg-green-500 text-white' 
-                      : 'bg-gray-400 text-gray-700'
-                  }`}
+                  className={`ml-4 px-3 py-1 rounded ${response[format] && authenticatedPlatforms.includes(format)
+                    ? 'bg-secondary text-primary'
+                    : 'bg-primary/50 text-white/50'
+                    }`}
                 >
                   Publish to {format.charAt(0).toUpperCase() + format.slice(1)}
                 </button>
@@ -263,7 +266,7 @@ export default function HomePage() {
         </div>
       )}
       {publishStatus && (
-        <div className="mt-6 text-green-600 font-semibold">
+        <div className="mt-6 text-semantic-success font-semibold">
           {publishStatus}
         </div>
       )}
