@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-interface NavLink {
+export interface NavLink {
   label: string;
   href: string;
+  icon?: React.ReactNode;
 }
 
 interface NavBarProps {
@@ -81,12 +82,13 @@ export default function NavBar({ links }: NavBarProps) {
           <Link
             key={link.href}
             href={link.href}
-            className={`py-2 px-4 rounded-md hover:bg-gray-600 hover:text-blue-400 ${
+            className={`flex items-center space-x-2 py-2 px-4 rounded-md hover:bg-gray-600 hover:text-blue-400 ${
               pathname === link.href ? 'bg-gray-600 text-blue-400' : ''
             }`}
             onClick={() => setIsMenuOpen(false)} // Close menu on click
           >
-            {link.label}
+            {link.icon && <span>{link.icon}</span>}
+            <span>{link.label}</span>
           </Link>
         ))}
       </div>  
