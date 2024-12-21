@@ -38,6 +38,8 @@ interface Prediction {
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsItem[]>([]);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [sortColumn, setSortColumn] = useState<keyof AnalyticsItem | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   useEffect(() => {
@@ -63,7 +65,6 @@ export default function AnalyticsPage() {
     async function generatePredictions() {
       if (analytics.length === 0) return;
 
-      const mockData = generateMockData(100);
       const wordCounts = analytics.map((item) => item.wordCount);
       const engagementScores = analytics.map((item) => item.engagementScore);
 
@@ -72,9 +73,6 @@ export default function AnalyticsPage() {
         // TODO rm hardcoding
         const futureWordCounts = [200, 400, 600, 800, 1000]; // Example future data
         const predictedEngagements = await predict(model, futureWordCounts);
-
-        console.log('Future Word Counts:', futureWordCounts);
-        console.log('Predicted Engagements:', predictedEngagements);
 
         setPredictions(
           futureWordCounts.map((wordCount, idx) => ({
@@ -115,15 +113,23 @@ export default function AnalyticsPage() {
         .join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
-
     link.setAttribute('href', encodedUri);
     link.setAttribute('download', 'content_analytics.csv');
-    link.setAttribute('rel', 'noopener noreferrer');
-
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
+
+  const handleSort = (column: keyof AnalyticsItem) => {
+    setSortOrder((prev) => (sortColumn === column && prev === 'asc' ? 'desc' : 'asc'));
+    setSortColumn(column);
+  };
+
+  const sortedAnalytics = [...analytics].sort((a, b) => {
+    if (!sortColumn) return 0;
+    const order = sortOrder === 'asc' ? 1 : -1;
+    return a[sortColumn] > b[sortColumn] ? order : -order;
+  });
 
   const getReadabilityLabel = (score: number) => {
     if (score >= 80) return 'Easy';
@@ -256,18 +262,66 @@ export default function AnalyticsPage() {
         <table className="w-full border-collapse border border-gray-300 text-left">
           <thead className="bg-gray-100 dark:bg-gray-700">
             <tr>
-              <th className="border border-gray-300 p-2">Format</th>
-              <th className="border border-gray-300 p-2">Word Count</th>
-              <th className="border border-gray-300 p-2">Engagement Score</th>
-              <th className="border border-gray-300 p-2">Readability Score</th>
-              <th className="border border-gray-300 p-2">Tone</th>
-              <th className="border border-gray-300 p-2">Sentiment</th>
-              <th className="border border-gray-300 p-2">Key Topics</th>
-              <th className="border border-gray-300 p-2">Suggestions</th>
+              <th 
+                className="cursor-pointer border border-gray-300 p-2"
+                onClick={() => handleSort('format')}
+              >
+                Format
+                {sortColumn === 'format' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+              </th>
+              <th 
+                className="cursor-pointer border border-gray-300 p-2"
+                onClick={() => handleSort('wordCount')}
+              >
+                Word Count
+                {sortColumn === 'wordCount' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+              </th>
+              <th 
+                className="cursor-pointer border border-gray-300 p-2"
+                onClick={() => handleSort('engagementScore')}
+              >
+                Engagement Score
+                {sortColumn === 'engagementScore' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+              </th>
+              <th 
+                className="cursor-pointer border border-gray-300 p-2"
+                onClick={() => handleSort('readabilityScore')}
+              >
+                Readability Score
+                {sortColumn === 'readabilityScore' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+              </th>
+              <th 
+                className="cursor-pointer border border-gray-300 p-2"
+                onClick={() => handleSort('tone')}
+              >
+                Tone
+                {sortColumn === 'tone' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+              </th>
+              <th 
+                className="cursor-pointer border border-gray-300 p-2"
+                onClick={() => handleSort('sentiment')}
+              >
+                Sentiment
+                {sortColumn === 'sentiment' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+              </th>
+              <th 
+                className="cursor-pointer border border-gray-300 p-2"
+                onClick={() => handleSort('keyTopics')}
+              >
+                Key Topics
+                {sortColumn === 'keyTopics' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+              </th>
+              <th 
+                className="cursor-pointer border border-gray-300 p-2"
+                onClick={() => handleSort('suggestions')}
+              >
+                Suggestions
+                {sortColumn === 'suggestions' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+              </th>
             </tr>
           </thead>
           <tbody>
-            {analytics.map((item, index) => (
+            {sortedAnalytics.map((item, index) => (
               <tr
                 key={index}
                 className="hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
