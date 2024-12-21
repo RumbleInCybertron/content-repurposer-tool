@@ -140,8 +140,10 @@ export default function AnalyticsPage() {
 
 
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Content Analytics</h1>
+    <main className="p-6 bg-neutral-light dark:bg-neutral-dark transition-all">
+      <h1 className="text-3xl font-bold mb-6 text-primary dark:text-secondary">
+        Content Analytics
+      </h1>
 
       {/* Export Button */}
       <button
@@ -151,97 +153,105 @@ export default function AnalyticsPage() {
         Export as CSV
       </button>
 
-      {/* Line Chart */}
-      <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Word Count Trends</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart
-            data={lineData}
-            margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="wordCount" stroke="#8884d8" />
-          </LineChart>
-        </ResponsiveContainer>
-      </section>
-
-      {/* Predictions Chart */}
-      <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Engagement Predictions</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart
-            data={predictions.map((item) => ({
-              name: item.format,
-              current: item.currentEngagement || 0,
-              predicted: !isNaN(item.predictedEngagement) ? item.predictedEngagement : 0,
-            }))}
-            margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip formatter={(value) => `${value}`} />
-            <Line type="monotone" dataKey="current" stroke="#8884d8" name="Current" />
-            <Line
-              type="monotone"
-              dataKey="predicted"
-              stroke="#82ca9d"
-              name="Predicted"
-              strokeDasharray="5 5"
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </section>
-
-      {/* Pie/Doughnut Chart */}
-      <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Engagement Scores by Format</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={pieData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              fill="#8884d8"
-              label={({ value, percent }) => `${value}: ${(percent * 100).toFixed(0)}%`}
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Line Chart */}
+        <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded transition-all">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+            Word Count Trends
+          </h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart
+              data={lineData}
+              margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
             >
-              {pieData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </section>
+              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.5} />
+              <XAxis
+                dataKey="name"
+                stroke="currentColor"
+                className="text-gray-800 dark:text-gray-200"
+              />
+              <YAxis
+                stroke="currentColor"
+                className="text-gray-800 dark:text-gray-200"
+              />
+              <Tooltip contentStyle={{ background: '#2d2d2d', color: '#fff' }} />
+              <Line type="monotone" dataKey="wordCount" stroke="#8884d8" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
-      {/* Bar Chart */}
-      <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Engagement Scores by Format</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart
-            data={analytics}
-            margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="format" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="engagementScore" fill="#8884d8" />
-          </BarChart>
-        </ResponsiveContainer>
-      </section>
+        {/* Engagement Predictions */}
+        <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded transition-all">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+            Engagement Predictions
+          </h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart
+              data={predictions.map((item) => ({
+                name: item.format,
+                current: item.currentEngagement || 0,
+                predicted: !isNaN(item.predictedEngagement) ? item.predictedEngagement : 0,
+              }))}
+              margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.5} />
+              <XAxis
+                dataKey="name"
+                stroke="currentColor"
+                className="text-gray-800 dark:text-gray-200"
+              />
+              <YAxis
+                stroke="currentColor"
+                className="text-gray-800 dark:text-gray-200"
+              />
+              <Tooltip contentStyle={{ background: '#2d2d2d', color: '#fff' }} />
+              <Line type="monotone" dataKey="current" stroke="#8884d8" name="Current" />
+              <Line
+                type="monotone"
+                dataKey="predicted"
+                stroke="#82ca9d"
+                name="Predicted"
+                strokeDasharray="5 5"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
-      {/* Detailed Insights */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Detailed Insights</h2>
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
+        {/* Pie Chart */}
+        <div className="bg-white dark:bg-gray-800 p-4 shadow-md rounded transition-all">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+            Engagement Scores by Format
+          </h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={pieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                fill="#8884d8"
+                label
+              >
+                {pieData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Table Section */}
+      <section className="bg-white dark:bg-gray-800 p-6 shadow-md rounded transition-all">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+          Detailed Insights
+        </h2>
+        <table className="w-full border-collapse border border-gray-300 text-left">
+          <thead className="bg-gray-100 dark:bg-gray-700">
             <tr>
               <th className="border border-gray-300 p-2">Format</th>
               <th className="border border-gray-300 p-2">Word Count</th>
@@ -255,7 +265,10 @@ export default function AnalyticsPage() {
           </thead>
           <tbody>
             {analytics.map((item, index) => (
-              <tr key={index}>
+              <tr
+                key={index}
+                className="hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+              >
                 <td className="border border-gray-300 p-2">{item.format}</td>
                 <td className="border border-gray-300 p-2">{item.wordCount}</td>
                 <td className="border border-gray-300 p-2">{item.engagementScore}</td>
@@ -264,24 +277,8 @@ export default function AnalyticsPage() {
                 </td>
                 <td className="border border-gray-300 p-2">{item.tone}</td>
                 <td className="border border-gray-300 p-2">{item.sentiment}</td>
-                <td className="border border-gray-300 p-2">
-                  <ul>
-                    {item.keyTopics.length > 0
-                      ? item.keyTopics.map((keyTopic, idx) => (
-                        <li key={idx} className="mb-2">{keyTopic}</li>
-                      ))
-                      : <li>None</li>}
-                  </ul>
-                </td>
-                <td className="border border-gray-300 p-2">
-                  <ul className="list-disc ml-4">
-                    {item.suggestions.length > 0
-                      ? item.suggestions.map((suggestion, idx) => (
-                        <li key={idx}>{suggestion}</li>
-                      ))
-                      : <li>None</li>}
-                  </ul>
-                </td>
+                <td className="border border-gray-300 p-2">{item.keyTopics.join(', ')}</td>
+                <td className="border border-gray-300 p-2">{item.suggestions.join('; ')}</td>
               </tr>
             ))}
           </tbody>
