@@ -115,8 +115,11 @@ export default function AnalyticsPage() {
         .join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
+
     link.setAttribute('href', encodedUri);
     link.setAttribute('download', 'content_analytics.csv');
+    link.setAttribute('rel', 'noopener noreferrer');
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
