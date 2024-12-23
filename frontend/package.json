@@ -12,6 +12,7 @@
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",
     "@upstash/redis": "^1.34.3",
+    "benchmark": "^2.1.4",
     "dotenv": "^16.4.6",
     "next": "15.0.3",
     "next-auth": "^4.24.11",
