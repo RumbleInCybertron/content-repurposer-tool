@@ -1,4 +1,10 @@
 import { NextResponse } from 'next/server';
+import {
+  formatForTwitter,
+  formatForLinkedIn,
+  formatForEmail,
+  formatForArticle
+ } from '../../../utils/platformFormatting';
 
 export async function POST(req: Request) {
   try {
@@ -33,14 +39,28 @@ export async function POST(req: Request) {
 
     const normalizedFormats = formats.map((format) => format.toLowerCase());
 
-    // Generate responses for all selected formats
-    const outputs = normalizedFormats.reduce((acc, format) => {
-      if (mockResponses[format]) {
-        acc[format] = mockResponses[format](content);
-        console.log(`Processed format: ${format}`); // Debugging log
-      } 
+    // Generate outputs selected formats
+    const outputs = formats.reduce((acc: Record<string, string>, format: string) => {
+      switch (format) {
+        case 'twitter':
+          acc[format] = formatForTwitter(content);
+          break;
+        case 'linkedin':
+          acc[format] = formatForLinkedIn(content);
+          break;
+        case 'email': {
+          const { subject, body } = formatForEmail(content);
+          acc[format] = `Subject: ${subject}\n\n${body}`;
+          break;
+        }
+        case 'article':
+          acc[format] = formatForArticle(content);
+          break;
+        default:
+          acc[format] = 'Unsupported format';
+      }
       return acc;
-    }, {} as Record<string, string>);
+    }, {});
 
     return NextResponse.json({ outputs });
   } catch (error) {
