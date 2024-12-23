@@ -77,6 +77,11 @@ export default function HomePage() {
       return;
     }
 
+    if (formats.includes('twitter') && content.length > 280) {
+      alert('Content exceeds the 280-character limit for Twitter/X.');
+      return;
+    }
+
     if (formats.length === 0) {
       setErrorMessage('Please select at least one format.');
       return;
