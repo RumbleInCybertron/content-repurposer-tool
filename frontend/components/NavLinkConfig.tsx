@@ -20,6 +20,15 @@ export const links: NavLink[] = [
       </svg>
     ),
   },
+  {
+    label: 'Auth Test',
+    href: '/auth-test',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-4.03 9-9s-4.03-9-9-9-9 4.03-9 9 4.03 9 9 9zm0 0c-4.97 0-9-4.03-9-9s4.03-9-9-9-9 4.03-9 9 4.03 9 9 9zm0 0c-4.97 0-9-4.03-9-9s4.03-9-9-9-9 4.03-9 9 4.03 9 9 9z" />
+      </svg>
+    ),
+  },  
   // {
   //   label: 'Contact',
   //   href: '/contact',
