@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import Link from 'next/link';
 
 export interface NavLink {
@@ -15,6 +16,7 @@ interface NavBarProps {
 }
 
 export default function NavBar({ links }: NavBarProps) {
+  const { data: session } = useSession();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -35,6 +37,26 @@ export default function NavBar({ links }: NavBarProps) {
             {link.label}
           </Link>
         ))}
+      </div>
+      <div>
+        {session ? (
+          <>
+            <span className="mr-4">Hello, {session.user?.name || "User"}!</span>
+            <button
+              onClick={() => signOut()}
+              className="bg-primary-light px-4 py-2 rounded hover:bg-secondary-light"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => signIn()}
+            className="bg-primary-light px-4 py-2 rounded hover:bg-secondary-dark"
+          >
+            Login
+          </button>
+        )}
       </div>
 
       {/* Mobile Menu Button */}
