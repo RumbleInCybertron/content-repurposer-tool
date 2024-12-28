@@ -13,8 +13,8 @@ export default function RootLayout({
   return (
     <html lang="en">
         <body className={"antialiased"}>
-          <NavBar links={links} />
           <SessionProvider>
+            <NavBar links={links} />
             {children}
           </SessionProvider>
         </body>
