@@ -26,18 +26,18 @@ export async function POST(req: Request) {
 
     console.log('Received request:', { content, formats });
 
-    // Define mock responses for each format
-    const mockResponses: Record<string, (content: string) => string> = {
-      linkedin: (content) => `Mock LinkedIn post for: ${content}`,
-      twitter: (content) =>
-        content.length > 280
-          ? content.slice(0, 277) + '...' // Enforce character limit
-          : content,
-      email: (content) => `Mock email draft for: ${content}`,
-      article: (content) => `Mock short-form article for: ${content}`,
-    };
+    // // Define mock responses for each format
+    // const mockResponses: Record<string, (content: string) => string> = {
+    //   linkedin: (content) => `Mock LinkedIn post for: ${content}`,
+    //   twitter: (content) =>
+    //     content.length > 280
+    //       ? content.slice(0, 277) + '...' // Enforce character limit
+    //       : content,
+    //   email: (content) => `Mock email draft for: ${content}`,
+    //   article: (content) => `Mock short-form article for: ${content}`,
+    // };
 
-    const normalizedFormats = formats.map((format) => format.toLowerCase());
+    // const normalizedFormats = formats.map((format) => format.toLowerCase());
 
     // Generate outputs selected formats
     const outputs = formats.reduce((acc: Record<string, string>, format: string) => {

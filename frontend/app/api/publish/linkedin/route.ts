@@ -39,6 +39,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ status: 'Content published to LinkedIn' });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Failed to publish content' }, { status: 500 });
   }
 }

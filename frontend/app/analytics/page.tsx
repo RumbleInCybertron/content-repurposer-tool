@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   Tooltip,
@@ -137,15 +135,15 @@ export default function AnalyticsPage() {
     return 'Difficult';
   };
 
-  const generateMockData = (count: number) => {
-    const mockData = [];
-    for (let i = 0; i < count; i++) {
-      const wordCount = Math.floor(Math.random() * 1000);
-      const engagementScore = Math.floor(wordCount * 0.1 + Math.random() * 20);
-      mockData.push({ wordCount, engagementScore });
-    }
-    return mockData;
-  };
+  // const generateMockData = (count: number) => {
+  //   const mockData = [];
+  //   for (let i = 0; i < count; i++) {
+  //     const wordCount = Math.floor(Math.random() * 1000);
+  //     const engagementScore = Math.floor(wordCount * 0.1 + Math.random() * 20);
+  //     mockData.push({ wordCount, engagementScore });
+  //   }
+  //   return mockData;
+  // };
 
 
   return (

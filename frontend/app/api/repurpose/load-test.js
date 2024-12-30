@@ -12,7 +12,7 @@ export let options = {
     },
 };
 
-export default function () {
+export default function loadTesttHandler() {
     const url = 'http://localhost:3000/api/repurpose';
     const payload = JSON.stringify({
         content: 'Test content for performance testing.',

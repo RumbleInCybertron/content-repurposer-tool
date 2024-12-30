@@ -36,6 +36,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ accessToken });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Failed to exchange authorization code' }, { status: 500 });
   }
 }
