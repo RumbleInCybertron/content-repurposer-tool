@@ -16,9 +16,16 @@ interface NavBarProps {
 }
 
 export default function NavBar({ links }: NavBarProps) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  console.log('CSR Session:', session);
+  console.log('status:', status);
+
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
 
   return (
     <nav className="bg-primary text-netural-white p-4  px-6 py-4 flex justify-between items-center">
@@ -42,6 +49,7 @@ export default function NavBar({ links }: NavBarProps) {
         {session ? (
           <>
             <span className="mr-4">Hello, {session.user?.name || "User"}!</span>
+            {/* <span className="mr-4">Hello User!</span> */}
             <button
               onClick={() => signOut()}
               className="bg-primary-light px-4 py-2 rounded hover:bg-secondary-light"
