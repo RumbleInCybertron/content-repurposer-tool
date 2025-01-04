@@ -1,3 +1,5 @@
+// frontend/components/NavBar.tsx
+
 'use client';
 
 import React, { useState } from 'react';
@@ -27,6 +29,10 @@ export default function NavBar({ links }: NavBarProps) {
     return <div>Loading...</div>;
   }
 
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/'});
+  };
+
   return (
     <nav className="bg-primary text-netural-white p-4  px-6 py-4 flex justify-between items-center">
       {/* Logo */}
@@ -51,7 +57,7 @@ export default function NavBar({ links }: NavBarProps) {
             <span className="mr-4">Hello, {session.user?.name || "User"}!</span>
             {/* <span className="mr-4">Hello User!</span> */}
             <button
-              onClick={() => signOut()}
+              onClick={handleSignOut}
               className="bg-primary-light px-4 py-2 rounded hover:bg-secondary-light"
             >
               Logout
