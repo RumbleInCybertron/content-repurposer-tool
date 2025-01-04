@@ -2,8 +2,10 @@
 
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { getSession } from "next-auth/react";
+import { useRouter } from 'next/navigation';
 
 interface UserProfile {
   id: string;
@@ -13,47 +15,64 @@ interface UserProfile {
 }
 
 
-export default async function ProfilePage() {
-  const { data: session, status } = useSession();
-
+const ProfilePage = () => {
+  const router = useRouter();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchUserProfile() {
+    const fetchUserProfile = async () => {
+      const session = await getSession();
       if (!session?.user?.email) {
-        console.error("Email is missing in the session object.");
+        router.replace('/');
         return;
       }
-      setLoading(true);
+
+      const email = encodeURIComponent(session.user.email);
+      const apiUrl = `/api/profile?email=${email}`;
+      console.log("Fetching profile from:", apiUrl);
+      
       try {
-        const res = await fetch(`/api/profile?email=${session.user.email}`);
+        const res = await fetch(apiUrl);
         if (!res.ok) throw new Error("Failed to fetch user profile");
         const data = await res.json();
         setUserProfile(data);
       } catch (error) {
-        console.error(error);
+        console.error("Profile Fetch Error:", error);
       } finally {
         setLoading(false);
       }
-    }
-
-    if (status === "authenticated") {
-      fetchUserProfile();
-    }
-  }, [session, status]);
+    };
+    
+    fetchUserProfile();
+  }, []);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
 
+    if (!userProfile?.email) {
+      console.error("Session email is missing. Cannot update profile.");
+      setUpdateStatus("Failed to update profile: Session email is missing.");
+      return;
+    }
+
     const updatedProfile = {
       name: formData.get("name"),
-      email: session?.user?.email,
-      preferences: formData.get("preferences"),
+      email: userProfile?.email,
+      preferences: (() => {
+        try {
+          return JSON.parse(formData.get("preferences") as string || "{}");
+        } catch {
+          console.error("Invalid preferences format. Must be valid JSON.");
+          return {};
+        }
+      })(),
     };
+
+    console.log("Updated Profile Payload:", updatedProfile);
 
     try {
       const res = await fetch(`/api/profile`, {
@@ -61,7 +80,12 @@ export default async function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedProfile),
       });
-      if (!res.ok) throw new Error("Failed to update profile");
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(`Failed to update profile: ${errorData.error || "Unknown error"}`);
+      }
+
       setUpdateStatus("Profile updated successfully!");
     } catch (error) {
       console.error(error);
@@ -70,19 +94,19 @@ export default async function ProfilePage() {
   };
 
 
-  if (status === "loading" || loading) {
-    return <p>Loading...</p>;
-  }
+  // if (status === "loading" || loading) {
+  //   return <p>Loading...</p>;
+  // }
 
-  if (!session) {
-    return <div>Please log in to view your profile.</div>;
-  }
+  // if (!session?.user) {
+  //   return <div>Please log in to view your profile.</div>;
+  // }
 
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Profile</h1>
-      {session ? (
+      {userProfile ? (
         <div className="bg-gray-100 p-6 shadow-md rounded-lg">
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             <div>
@@ -111,7 +135,7 @@ export default async function ProfilePage() {
           </form>
           {updateStatus && <p className="mt-4">{updateStatus}</p>}
           <button
-            onClick={() => signOut()}
+            onClick={() => signOut({ callbackUrl: '/'})}
             className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
           >
             Logout
@@ -123,3 +147,5 @@ export default async function ProfilePage() {
     </div>
   );
 }
+
+export default ProfilePage;

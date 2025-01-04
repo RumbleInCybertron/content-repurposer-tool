@@ -1,11 +1,15 @@
 // frontend/app/api/profile/route.ts
 
+// import { useSearchParams } from "next/navigation";
 import { prisma } from "../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  console.log("Request: ", req.nextUrl.searchParams);
+  console.log("Full URL:", req.nextUrl.href);
+  console.log("Search Params:", req.nextUrl.searchParams.toString());
+
   const email = req.nextUrl.searchParams.get("email");
+  console.log("Email received in API:", email);
   if (!email) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
