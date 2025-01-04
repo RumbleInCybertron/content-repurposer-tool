@@ -1,3 +1,7 @@
+// frontend/lib/auth.ts
+
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { prisma } from "./prisma";
 import { NextAuthOptions } from "next-auth";
 import TwitterProvider from "next-auth/providers/twitter";
 import GoogleProvider from "next-auth/providers/google";
@@ -9,8 +13,23 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      emailVerified?: Date | null;
     };
     accessToken?: string;
+  }
+
+  interface User {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    emailVerified?: Date | null;
+  }
+
+  interface AdapterUser {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    emailVerified?: Date | null;
   }
 }
 
@@ -21,11 +40,13 @@ declare module "next-auth/jwt" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      emailVerified?: Date | null;
     };
   }
 }
 
 export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     TwitterProvider({
       clientId: process.env.TWITTER_CLIENT_ID || "",
@@ -44,23 +65,45 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, account, user }) {
+      console.log("JWT Callback - Token:", token);
+      console.log("JWT Callback - Account:", account);
+      console.log("JWT Callback - User:", user);
+
       if (account?.access_token) {
         token.accessToken = account.access_token;
       }
+
       if (user) {
         token.user = {
           name: user.name,
           email: user.email,
           image: user.image,
+          emailVerified: user.emailVerified,
         };
+
+        if (user.email)
+          await prisma.user.upsert({
+            where: { email: user.email },
+            update: {},
+            create: {
+              email: user.email!,
+              name: user.name,
+              image: user.image,
+              emailVerified: user.emailVerified,
+            },
+          });
       }
       return token;
     },
     async session({ session, token }) {
+      console.log("Session Callback - Token:", token);
+      console.log("Session Callback - Session:", session);
+
       session.user = {
         name: token.user?.name ?? null,
         email: token.user?.email ?? null,
         image: token.user?.image ?? null,
+        emailVerified: token.user?.emailVerified ?? null,
       };
 
       if (token.accessToken) {
@@ -70,7 +113,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith(baseUrl)) return url;
+      // if (url.startsWith(baseUrl)) return url;
       return baseUrl + '/profile';
     },
   },
