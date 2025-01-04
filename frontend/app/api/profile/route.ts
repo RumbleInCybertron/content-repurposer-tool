@@ -1,6 +1,5 @@
 // frontend/app/api/profile/route.ts
 
-// import { useSearchParams } from "next/navigation";
 import { prisma } from "../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -27,21 +26,39 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const body = await req.json();
-  const { email, name, preferences } = body;
-
-  if (!email) {
-    return NextResponse.json({ error: "Email is required" }, { status: 400 });
-  }
-
   try {
+    const body = await req.json();
+    const { email, name, preferences } = body;
+
+    if (!email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
+
+    // Validate preferences structure if provided
+    const validatedPreferences = preferences ? validatePreferences(preferences) : undefined;
+
     const updatedUser = await prisma.user.update({
       where: { email },
-      data: { name, preferences },
+      data: {
+        name,
+        preferences: validatedPreferences,
+      },
     });
+
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
   }
+}
+
+const validatePreferences = (preferences: Record<string, unknown>) => {
+  // Add validation logic for preferences structure
+  const defaultPreferences = {
+    theme: "light",
+    notifications: { email: true, push: false },
+    integrations: { twitter: false, linkedin: false },
+  };
+
+  return { ...defaultPreferences, ...preferences };
 }

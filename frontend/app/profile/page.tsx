@@ -11,7 +11,13 @@ interface UserProfile {
   id: string;
   name: string;
   email: string;
-  preferences?: Record<string, unknown>;
+  preferences?: {
+    theme?: string;
+    notifications?: {
+      email?: boolean;
+      push?: boolean;
+    };
+  };
 }
 
 
@@ -31,7 +37,6 @@ const ProfilePage = () => {
 
       const email = encodeURIComponent(session.user.email);
       const apiUrl = `/api/profile?email=${email}`;
-      console.log("Fetching profile from:", apiUrl);
       
       try {
         const res = await fetch(apiUrl);
@@ -61,15 +66,13 @@ const ProfilePage = () => {
 
     const updatedProfile = {
       name: formData.get("name"),
-      email: userProfile?.email,
-      preferences: (() => {
-        try {
-          return JSON.parse(formData.get("preferences") as string || "{}");
-        } catch {
-          console.error("Invalid preferences format. Must be valid JSON.");
-          return {};
-        }
-      })(),
+      preferences: {
+        theme: formData.get("theme"),
+        notifications: {
+          email: formData.get("notifications_email") === "on",
+          push: formData.get("notifications_push") === "on",
+        },
+      },
     };
 
     console.log("Updated Profile Payload:", updatedProfile);
@@ -78,7 +81,7 @@ const ProfilePage = () => {
       const res = await fetch(`/api/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedProfile),
+        body: JSON.stringify({ ...updatedProfile, email: userProfile?.email }),
       });
 
       if (!res.ok) {
@@ -119,21 +122,43 @@ const ProfilePage = () => {
               />
             </div>
             <div>
-              <label className="block font-semibold">Preferences</label>
-              <textarea
-                name="preferences"
-                defaultValue={userProfile?.preferences? JSON.stringify(userProfile.preferences) : ""}
+              <label className="block font-semibold">Theme</label>
+              <select
+                name="theme"
+                defaultValue={userProfile.preferences?.theme || "light"}
                 className="w-full p-2 border rounded"
-              />
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </div>
+            <div>
+              <label className="block font-semibold">Notifications</label>
+              <label className="block">
+                <input
+                  type="checkbox"
+                  name="notifications_email"
+                  defaultChecked={userProfile.preferences?.notifications?.email}
+                />
+                Email Notifications
+              </label>
+              <label className="block">
+                <input
+                  type="checkbox"
+                  name="notifications_push"
+                  defaultChecked={userProfile.preferences?.notifications?.push}
+                />
+                Push Notifications
+              </label>
             </div>
             <button
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
+              >
               Update Profile
             </button>
+            {updateStatus && <p className="mt-4">{updateStatus}</p>}
           </form>
-          {updateStatus && <p className="mt-4">{updateStatus}</p>}
           <button
             onClick={() => signOut({ callbackUrl: '/'})}
             className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
