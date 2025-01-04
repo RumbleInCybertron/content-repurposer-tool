@@ -110,8 +110,8 @@ const ProfilePage = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Profile</h1>
       {userProfile ? (
-        <div className="bg-gray-100 p-6 shadow-md rounded-lg">
-          <form onSubmit={handleUpdateProfile} className="space-y-4">
+        <div className="bg-primary-light p-6 shadow-md rounded-lg">
+          <form onSubmit={handleUpdateProfile} className="space-y-4 text-black bg-primary-light">
             <div>
               <label className="block font-semibold">Name</label>
               <input
